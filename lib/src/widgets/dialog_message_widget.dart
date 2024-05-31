@@ -41,21 +41,23 @@ class DialogMessageWidget extends StatelessWidget {
             popUp != true ?
             SizedBox(
                 height: 80,
-                child: SvgPicture.asset(image)
+                child: Image.asset(image)
             ) : Container(),
             CustomLayout.vpad_16,
             popUp != true ?
             SizedBox(
               height: 40,
-              child: Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: Colors.lightBlue, fontSize: 25)),
+              child: Text(title, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.black, fontSize: 25)),
             ) : SizedBox(
               height: 60,
-              child: Text(title, style: TextStyle(fontWeight: FontWeight.w700, color: Colors.lightBlue, fontSize: 20), textAlign: TextAlign.center),
+              child: Text(title, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.black, fontSize: 20),
+                  textAlign: TextAlign.center),
             ),
             CustomLayout.vpad_24,
             SizedBox(
               height: contentHeight ?? 40,
-              child: Text(content, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w400, color: Colors.lightBlue, fontSize: 16)),
+              child: Text(content, textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.black, fontSize: 16)),
             ),
           ],
         ),
@@ -72,7 +74,7 @@ class DialogMessageWidget extends StatelessWidget {
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all(
                       RoundedRectangleBorder(
-                        side: const BorderSide(color: Colors.yellow),
+                        // side: const BorderSide(color: Colors.yellow),
                         borderRadius: BorderRadius.circular(32.0),
                       ),
                     ),
@@ -86,7 +88,7 @@ class DialogMessageWidget extends StatelessWidget {
                   ),
                   child: Text(
                     textFirstButton!,
-                    style: TextStyle(fontWeight: FontWeight.w500, color: Colors.yellow, fontSize: 16),
+                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
                   ),
                 ),
               ),
@@ -109,11 +111,11 @@ class DialogMessageWidget extends StatelessWidget {
                       left: constraints!.maxWidth * 0.22,
                       right: constraints!.maxWidth * 0.22,
                     )),
-                    backgroundColor: MaterialStateProperty.all(Colors.lightGreenAccent),
+                    backgroundColor: MaterialStateProperty.all(Colors.black),
                   ),
                   child: const Text(
                     'OK',
-                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                    style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),
@@ -132,11 +134,11 @@ class DialogMessageWidget extends StatelessWidget {
                   ),
                 ),
                 padding: MaterialStateProperty.all(const EdgeInsets.only(top: 20.0, bottom: 20.0, left: 70, right: 70)),
-                backgroundColor: MaterialStateProperty.all(Colors.lightGreenAccent),
+                backgroundColor: MaterialStateProperty.all(Colors.black),
               ),
               child: const Text(
                 'OK',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16, color: Colors.white),
               ),
             ),
           ),

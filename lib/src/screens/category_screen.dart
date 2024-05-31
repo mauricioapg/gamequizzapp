@@ -4,6 +4,7 @@ import 'package:gamequizzapp/src/http/webclients/category_webclient.dart';
 import 'package:gamequizzapp/src/http/webclients/question_webclient.dart';
 import 'package:gamequizzapp/src/models/category.dart';
 import 'package:gamequizzapp/src/models/question.dart';
+import 'package:gamequizzapp/src/models/user.dart';
 import 'package:gamequizzapp/src/screens/question_screen.dart';
 import 'package:gamequizzapp/src/service/validation_token.dart';
 import 'package:gamequizzapp/src/widgets/list_tile_widget.dart';
@@ -15,8 +16,9 @@ class CategoryScreen extends StatefulWidget {
   final String username;
   final String password;
   final String idUser;
+  final User userLogged;
 
-  const CategoryScreen(this.allQuestionsList, this.username, this.password, this.idUser, {Key? key}) : super(key: key);
+  const CategoryScreen(this.allQuestionsList, this.username, this.password, this.idUser, this.userLogged, {Key? key}) : super(key: key);
 
 
   @override
@@ -173,7 +175,8 @@ class CategoryScreenState extends State<CategoryScreen> {
                                           _getQuestionsByCategory(_categoryList[index].idCategory),
                                           widget.username,
                                           widget.password,
-                                          widget.idUser
+                                          widget.idUser,
+                                          widget.userLogged
                                       );
                                     }
                                     else{
@@ -214,10 +217,11 @@ class CategoryScreenState extends State<CategoryScreen> {
       List<Question> listQuestion,
       String username,
       String password,
-      String idUser
+      String idUser,
+      User userLogged
       ) {
     Navigator.push(context, MaterialPageRoute(builder: (context) =>
-        QuestionScreen(category, pathImage, descNivel, listQuestion, username, password, idUser)));
+        QuestionScreen(category, pathImage, listQuestion, username, password, idUser, userLogged)));
   }
 
 }

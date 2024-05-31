@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:gamequizzapp/src/constants/custom_layout.dart';
+import 'package:gamequizzapp/src/http/webclients/level_webclient.dart';
 import 'package:gamequizzapp/src/http/webclients/user_webclient.dart';
+import 'package:gamequizzapp/src/screens/login_screen.dart';
 import 'package:gamequizzapp/src/widgets/dialog_message_widget.dart';
-
-import '../constants/custom_layout.dart';
-import '../http/webclients/level_webclient.dart';
-import '../widgets/text_with_action_widget.dart';
+import 'package:gamequizzapp/src/widgets/text_with_action_widget.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -33,21 +33,34 @@ class RegisterScreenState extends State<RegisterScreen> {
       await levelWebClient.getLevelByDesc(descLevel).then((Level) async {
         await userWebClient.createUser(name, email, username, password, type, Level.idLevel).then((statusCode) {
           if(statusCode == 201){
-            debugPrint("usuário criado com sucesso");
-            DialogMessageWidget(
-              title: "teste",
-              content: "conteudo",
-              image: "",
-              textButton: "clicar",
+            showDialog(
+              context: context,
+              builder: (contextDialog) {
+                return DialogMessageWidget(
+                    image: 'assets/images/success.png',
+                    textButton: 'OK',
+                    title: 'Sucesso!',
+                    content: 'Usuário criado com sucesso',
+                    contentHeight: 80,
+                    functionSecond: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
+                    const LoginScreen()))
+                );
+              },
             );
           }
           else{
-            debugPrint("Erro ao criar usuário");
-            DialogMessageWidget(
-              title: "erro",
-              content: "conteudo erro",
-              image: "",
-              textButton: "clicar",
+            showDialog(
+              context: context,
+              builder: (contextDialog) {
+                return DialogMessageWidget(
+                    image: 'assets/images/error.png',
+                    textButton: 'OK',
+                    title: 'Erro!',
+                    content: 'Erro ao criar usuário',
+                    contentHeight: 80,
+                    functionSecond: () => Navigator.pop(context)
+                );
+              },
             );
           }
         });

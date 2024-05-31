@@ -71,6 +71,8 @@ flutter:
     - assets/images/esportes.png
     - assets/images/correct.png
     - assets/images/wrong.png
+    - assets/images/error.png
+    - assets/images/success.png
     - assets/images/time_finished.png
     - assets/images/logo.png
 

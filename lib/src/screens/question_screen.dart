@@ -7,7 +7,8 @@ import 'package:gamequizzapp/src/http/webclients/question_webclient.dart';
 import 'package:gamequizzapp/src/http/webclients/user_webclient.dart';
 import 'package:gamequizzapp/src/models/category.dart';
 import 'package:gamequizzapp/src/models/question.dart';
-import 'package:gamequizzapp/src/screens/correct_answer_screen.dart';
+import 'package:gamequizzapp/src/models/user.dart';
+import 'package:gamequizzapp/src/screens/answer_screen.dart';
 import 'package:gamequizzapp/src/service/validation_token.dart';
 import 'package:gamequizzapp/src/widgets/dialog_message_widget.dart';
 import 'package:gamequizzapp/src/widgets/list_tile_widget.dart';
@@ -17,13 +18,13 @@ class QuestionScreen extends StatefulWidget {
 
   final Category category;
   final String pathImage;
-  final String descNivel;
   final List<Question> listQuestion;
   final String username;
   final String password;
   final String idUser;
+  final User userLogged;
 
-  const QuestionScreen(this.category, this.pathImage, this.descNivel, this.listQuestion, this.username, this.password, this.idUser, {super.key});
+  const QuestionScreen(this.category, this.pathImage, this.listQuestion, this.username, this.password, this.idUser, this.userLogged, {super.key});
 
 
   @override
@@ -36,7 +37,6 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
 
   final UserWebClient userWebClient = UserWebClient();
   String selectedAlternative = '';
-  // String descNivel = '';
   int selectedItem = 4;
   int _counter = 10;
 
@@ -59,10 +59,10 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
               "Tempo Esgotado",
               Colors.orange,
               widget.category,
-              widget.descNivel,
               widget.username,
               widget.password,
-              widget.idUser
+              widget.idUser,
+              widget.userLogged
           );
         }
       });
@@ -121,7 +121,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Text('Nível: ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                        Text(widget.descNivel, style: const TextStyle(fontSize: 16, color: Colors.white))
+                        Text(widget.listQuestion[0].level, style: const TextStyle(fontSize: 16, color: Colors.white))
                       ],
                     )
                 ),
@@ -199,10 +199,10 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                   "Resposta Correta",
                   Colors.green,
                   widget.category,
-                  widget.descNivel,
                   widget.username,
                   widget.password,
-                  widget.idUser
+                  widget.idUser,
+                  widget.userLogged,
               );
 
               // const DialogMessageWidget(
@@ -224,10 +224,10 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                   "Resposta Errada",
                   Colors.red,
                   widget.category,
-                  widget.descNivel,
                   widget.username,
                   widget.password,
-                  widget.idUser
+                  widget.idUser,
+                  widget.userLogged,
               );
             }
           },
@@ -256,13 +256,13 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
       String text,
       Color backGroundColor,
       Category category,
-      String descNivel,
       String username,
       String password,
-      String idUser
+      String idUser,
+      User userLogged,
       ) {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-        CorrectAnswerScreen(pathImage, text, backGroundColor, category, descNivel, username, password, idUser))
+        AnswerScreen(pathImage, text, backGroundColor, category, username, password, idUser, userLogged))
     );
   }
 

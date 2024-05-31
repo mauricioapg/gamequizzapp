@@ -8,8 +8,8 @@ import 'package:gamequizzapp/src/http/webclients/webclient.dart';
 
 class UserWebClient {
 
-  Future<User> getUserByEmail(String email, String token) async {
-    final Response response = await client.get(Uri.parse('$baseAPIUrl/users/email/$email'),
+  Future<User> getUserByUsername(String username, String token) async {
+    final Response response = await client.get(Uri.parse('$baseAPIUrl/users/username/$username'),
         headers: {"Accept": "application/json; charset=UTF-8", "Authorization": "Bearer $token"});
 
     final Map<String, dynamic> json = jsonDecode(response.body);

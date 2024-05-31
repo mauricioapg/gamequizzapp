@@ -35,31 +35,43 @@ class LoginScreenState extends State<LoginScreen> {
     super.initState();
   }
 
-  Future<User?> _login(String email, String password) async {
+  Future<User?> _login(String username, String password) async {
     try {
-      ValidationToken.getToken(context, email, password).then((token) async {
+      ValidationToken.getToken(context, username, password).then((token) async {
         if(token != null){
-          await userWebClient.getUserByEmail(email, token).then((user) {
+          await userWebClient.getUserByUsername(username, token).then((user) {
             setState(() {
               userLogged = user;
             });
           });
 
           if(userLogged != null){
-            _getAllQuestions(email, password);
+            _getAllQuestions(username, password);
           }
         }
         else{
-          debugPrint("TOKEN NULO LOGIN");
+          showDialog(
+            context: context,
+            builder: (contextDialog) {
+              return DialogMessageWidget(
+                  image: 'assets/images/error.png',
+                  textButton: 'OK',
+                  title: 'Erro!',
+                  content: 'Credenciais inválidas',
+                  contentHeight: 80,
+                  functionSecond: () => Navigator.pop(context)
+              );
+            },
+          );
         }
       });
     } on Exception {}
     return userLogged;
   }
 
-  Future<List<Question>> _getAllQuestions(String email, String password) async {
+  Future<List<Question>> _getAllQuestions(String username, String password) async {
     try {
-      ValidationToken.getToken(context, email, password).then((token) async {
+      ValidationToken.getToken(context, username, password).then((token) async {
         if(token != null){
           await questionWebClient.getAllQuestions(token).then((questions) {
             for(int i=0; i < questions.length; i++){
@@ -70,7 +82,7 @@ class LoginScreenState extends State<LoginScreen> {
 
             if(allQuestionsList.isNotEmpty){
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-                  CategoryScreen(allQuestionsList, email, password, userLogged!.idUser)));
+                  CategoryScreen(allQuestionsList, username, password, userLogged!.idUser, userLogged!)));
             }
 
           });
