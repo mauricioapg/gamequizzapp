@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gamequizzapp/src/constants/custom_layout.dart';
 import 'package:gamequizzapp/src/http/webclients/question_webclient.dart';
 import 'package:gamequizzapp/src/http/webclients/user_webclient.dart';
@@ -38,7 +37,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
   final UserWebClient userWebClient = UserWebClient();
   String selectedAlternative = '';
   int selectedItem = 4;
-  int _counter = 10;
+  int _counter = 200;
 
   @override
   void initState() {
@@ -78,7 +77,9 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
             userWebClient.updateQuestionsAnswered(token, widget.idUser, idQuestion);
           }
         });
-      } on Exception {}
+      } on Exception catch(e) {
+        debugPrint("Exception encontrada aqui >> " + e.toString());
+      }
 
       return true;
     }
@@ -88,7 +89,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -101,11 +102,11 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                     child: Image.asset(widget.pathImage)
                 )
               ),
-              Text(widget.category.desc),
+              Text(widget.category.desc, style: const TextStyle(color: Colors.white)),
             ],
           ),
           // title: Text(widget.category.desc),
-            backgroundColor: Colors.grey,
+            backgroundColor: Colors.black,
             // toolbarHeight: 150,
             // shadowColor: Colors.transparent,
           automaticallyImplyLeading: false,
@@ -141,7 +142,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                             borderRadius: BorderRadius.circular(10.0),
                             boxShadow: const [
                               BoxShadow(
-                                color: Colors.grey ,
+                                color: Colors.grey,
                               )
                             ]
                         ),
@@ -159,8 +160,8 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                       itemCount: widget.listQuestion[0].alternatives.length,
                       itemBuilder: (context, index) {
                         return ListTileWidget(
-                          titleColor: Colors.white,
-                          cardColor: index == selectedItem ? Colors.black12 : Colors.black,
+                          titleColor: Colors.black,
+                          cardColor: index == selectedItem ? Colors.blue : Colors.black12,
                           title: widget.listQuestion[0].alternatives[index],
                           action: () {
                             selectedAlternative = widget.listQuestion[0].alternatives[index];
@@ -180,13 +181,14 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       floatingActionButton: FloatingActionButton(
         // isExtended: true
-        child: Text(
-            _counter.toString(),
-            style: const TextStyle(color: Colors.black, fontSize: 20)),
         backgroundColor: Colors.yellow,
         onPressed: () {
 
         },
+        // isExtended: true
+        child: Text(
+            _counter.toString(),
+            style: const TextStyle(color: Colors.black, fontSize: 20)),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(bottom: 10, left: 8, right: 8),
@@ -204,18 +206,6 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                   widget.idUser,
                   widget.userLogged,
               );
-
-              // const DialogMessageWidget(
-              //   title: "Título teste",
-              //   content: "conteúdo",
-              //   image: "image",
-              //   textButton: "texto do botao",
-              // );
-              // Fluttertoast.showToast(
-              //   msg: "Resposta certa!",
-              //   toastLength: Toast.LENGTH_SHORT,
-              //   gravity: ToastGravity.CENTER,
-              // );
             }
             else{
               openCorrectAnswerScreen(

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:gamequizzapp/src/constants/custom_layout.dart';
 import 'package:gamequizzapp/src/http/webclients/question_webclient.dart';
+import 'package:gamequizzapp/src/http/webclients/user_webclient.dart';
 import 'package:gamequizzapp/src/models/question.dart';
 import 'package:gamequizzapp/src/models/category.dart';
 import 'package:gamequizzapp/src/models/user.dart';
@@ -38,6 +39,7 @@ class AnswerScreen extends StatefulWidget {
 class AnswerScreenState extends State<AnswerScreen> {
 
   final QuestionWebClient questionWebClient = QuestionWebClient();
+  final UserWebClient userWebClient = UserWebClient();
   List<Question> allQuestionsList = [];
 
   @override
@@ -68,18 +70,24 @@ class AnswerScreenState extends State<AnswerScreen> {
     try {
       ValidationToken.getToken(context, widget.username, widget.password).then((token) async {
         if(token != null){
-          await questionWebClient.getAllQuestions(token).then((questions) {
+          await questionWebClient.getAllQuestions(token).then((questions) async {
             for(int i=0; i < questions.length; i++){
-              if(questions[i].category == widget.category.idCategory){
-                setState(() {
-                  allQuestionsList.add(questions[i]);
+              if(questions[i].category == widget.category.desc){
+                await userWebClient.getUserByUsername(widget.username, token).then((user) {
+                  if(!user.questionsAnswered.contains(questions[i].idQuestion)){
+                    setState(() {
+                      allQuestionsList.add(questions[i]);
+                    });
+                  }
                 });
               }
             }
           });
         }
       });
-    } on Exception {}
+    } on Exception catch(e) {
+      debugPrint("Exception encontrada >> " + e.toString());
+    }
 
     allQuestionsList.shuffle();
 

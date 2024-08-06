@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gamequizzapp/src/http/webclients/category_webclient.dart';
 import 'package:gamequizzapp/src/http/webclients/question_webclient.dart';
+import 'package:gamequizzapp/src/http/webclients/user_webclient.dart';
 import 'package:gamequizzapp/src/models/category.dart';
 import 'package:gamequizzapp/src/models/question.dart';
 import 'package:gamequizzapp/src/models/user.dart';
@@ -30,8 +30,10 @@ class CategoryScreen extends StatefulWidget {
 class CategoryScreenState extends State<CategoryScreen> {
 
   final List<Category> _categoryList = [];
+  List<Question> questionsByCategory = [];
   final CategoryWebClient categoryWebClient = CategoryWebClient();
   final QuestionWebClient questionWebClient = QuestionWebClient();
+  final UserWebClient userWebClient = UserWebClient();
   late Future _future;
 
   @override
@@ -40,18 +42,58 @@ class CategoryScreenState extends State<CategoryScreen> {
     _future = _getCategoryList();
   }
 
-  List<Question> _getQuestionsByCategory(String category) {
-    List<Question> questionsByCategory = [];
-    for (var question in widget.allQuestionsList) {
-      if(question.category == category.toLowerCase()){
-        questionsByCategory.add(question);
-      }
+  Future<List<Question>> _getQuestionsByCategory(String desc) async{
+    debugPrint("allQuestionsList recebido >> " + widget.allQuestionsList.toString());
+    try{
+      await ValidationToken.getToken(context, widget.username, widget.password).then((token) async{
+        for (var question in widget.allQuestionsList){
+          if(question.category == desc){
+            await userWebClient.getUserByUsername(widget.username, token!).then((user) {
+              if(!user.questionsAnswered.contains(question.idQuestion)){
+                setState(() {
+                  questionsByCategory.add(question);
+                });
+              }
+            });
+          }
+        }
+      });
     }
+    on Exception {}
 
     questionsByCategory.shuffle(); //Embaralha lista
 
+    debugPrint("questionsByCategory >> " + questionsByCategory.toString());
+
     return questionsByCategory;
   }
+
+  // List<Question> _getQuestionsByCategory(String desc){
+  //   debugPrint("desc category >> " + desc);
+  //   try{
+  //     ValidationToken.getToken(context, widget.username, widget.password).then((token) async{
+  //       for (var question in widget.allQuestionsList){
+  //         debugPrint("cat >> " + question.category);
+  //         if(question.category == desc){
+  //           await userWebClient.getUserByUsername(widget.username, token!).then((user) {
+  //             if(!user.questionsAnswered.contains(question.idQuestion)){
+  //               setState(() {
+  //                 questionsByCategory.add(question);
+  //               });
+  //             }
+  //           });
+  //         }
+  //       }
+  //     });
+  //   }
+  //   on Exception {}
+  //
+  //   questionsByCategory.shuffle(); //Embaralha lista
+  //
+  //   debugPrint("questionsByCategory >> " + questionsByCategory.toString());
+  //
+  //   return questionsByCategory;
+  // }
 
   Future<List<Category>> _getCategoryList() async {
     try {
@@ -66,12 +108,7 @@ class CategoryScreenState extends State<CategoryScreen> {
           });
         }
       });
-    } on Exception {
-      // Fluttertoast.showToast(
-      //     msg: "Erro ao buscar lista de categorias",
-      //     toastLength: Toast.LENGTH_SHORT,
-      //     gravity: ToastGravity.CENTER);
-    }
+    } on Exception {}
     return _categoryList;
   }
 
@@ -120,11 +157,19 @@ class CategoryScreenState extends State<CategoryScreen> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.grey,
+        backgroundColor: Colors.white,
         // backgroundColor: Colors.indigoAccent,
         appBar: AppBar(
-          title: const Text('Categorias'),
-            backgroundColor: Colors.grey,
+          title: const Text('Categorias', style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.black,
+            actions: <Widget> [
+              IconButton(
+                icon: const Icon(Icons.account_circle, color: Colors.white),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
             // toolbarHeight: 150,
             // shadowColor: Colors.transparent,
             automaticallyImplyLeading: false),
@@ -138,12 +183,12 @@ class CategoryScreenState extends State<CategoryScreen> {
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       if (snapshot.hasError) {
-                        debugPrint('ERRO: ' + snapshot.stackTrace.toString());
+                        debugPrint('ERRO: ${snapshot.stackTrace}');
                         return Center(
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, right: 8),
                             child: Text(
-                              'Erro ao buscar dados: ' + snapshot.error.toString(),
+                              'Erro ao buscar dados: ${snapshot.error}',
                               style:
                               const TextStyle(fontSize: 18, color: Colors.grey),
                             ),
@@ -160,28 +205,48 @@ class CategoryScreenState extends State<CategoryScreen> {
                               itemCount: _categoryList.length,
                               itemBuilder: (context, index) {
                                 return ListTileWidget(
-                                  titleColor: Colors.white,
-                                  cardColor: Colors.black,
+                                  titleColor: Colors.black,
+                                  cardColor: Colors.black12,
                                   locationImage: chooseLocationImage(_categoryList[index].desc),
                                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                                   title: _categoryList[index].desc,
                                   action: () {
-                                    if(_getQuestionsByCategory(_categoryList[index].idCategory).isNotEmpty){
-                                      openQuestionScreen(
-                                          context,
-                                          _categoryList[index],
-                                          chooseLocationImage(_categoryList[index].desc),
-                                          _categoryList[index].desc,
-                                          _getQuestionsByCategory(_categoryList[index].idCategory),
-                                          widget.username,
-                                          widget.password,
-                                          widget.idUser,
-                                          widget.userLogged
-                                      );
-                                    }
-                                    else{
-                                      debugPrint('IS EMPTY: ');
-                                    }
+                                    _getQuestionsByCategory(_categoryList[index].desc).then((list){
+                                      if(list.isNotEmpty){
+                                        debugPrint("chamando tela da pergunta");
+                                        openQuestionScreen(
+                                            context,
+                                            _categoryList[index],
+                                            chooseLocationImage(_categoryList[index].desc),
+                                            _categoryList[index].desc,
+                                            list,
+                                            widget.username,
+                                            widget.password,
+                                            widget.idUser,
+                                            widget.userLogged
+                                        );
+                                      }
+                                      else{
+                                        debugPrint('IS EMPTY: ');
+                                      }
+                                    });
+                                    // if(){
+                                    //   debugPrint("chamando tela da pergunta");
+                                    //   openQuestionScreen(
+                                    //       context,
+                                    //       _categoryList[index],
+                                    //       chooseLocationImage(_categoryList[index].desc),
+                                    //       _categoryList[index].desc,
+                                    //       _getQuestionsByCategory(_categoryList[index].desc),
+                                    //       widget.username,
+                                    //       widget.password,
+                                    //       widget.idUser,
+                                    //       widget.userLogged
+                                    //   );
+                                    // }
+                                    // else{
+                                    //   debugPrint('IS EMPTY: ');
+                                    // }
                                   },
                                 );
                               },

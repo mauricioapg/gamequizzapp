@@ -35,6 +35,7 @@ dependencies:
   flutter_html: ^2.2.1
   simple_timer: ^2.0.0
   mask_text_input_formatter: ^2.3.0
+  sqflite:
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -52,7 +52,7 @@ class TextWithActionWidgetState extends State<TextWithActionWidget>{
                 );
           },
           textInputAction: TextInputAction.next,
-          // autovalidateMode: AutovalidateMode.onUserInteraction,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           obscureText: widget.typeValidate == "password" ? true : false,
           inputFormatters: widget.typeValidate == 'cpf' ? [maskCpf] : [],
           controller: widget.controllerField..text,

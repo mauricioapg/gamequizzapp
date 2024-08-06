@@ -35,7 +35,6 @@ class ListTileWidget extends StatelessWidget {
             color: cardColor,
             child: Center(
               child: ListTile(
-
                 leading: locationImage != null ? Image.asset(locationImage!, width: 40) : null,
                 title: Padding(
                   padding: padding != null ? padding! : EdgeInsets.zero,
