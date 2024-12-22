@@ -23,12 +23,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gamequizzapp/src/database/dao/login_dao.dart';
 import 'package:gamequizzapp/src/http/webclients/login_webclient.dart';
+import 'package:gamequizzapp/src/http/webclients/user_webclient.dart';
+import 'package:gamequizzapp/src/screens/category_screen.dart';
 import 'package:gamequizzapp/src/screens/login_screen.dart';
 
 class ValidationToken{
 
   static final LoginDAO dao = LoginDAO();
   static final LoginWebClient loginWebClient = LoginWebClient();
+  static final UserWebClient userWebClient = UserWebClient();
 
   static Future<String> getToken(BuildContext context, String username, String password) async {
 
@@ -50,22 +53,8 @@ class ValidationToken{
             loginWebClient.getToken(username, password).then((newToken){
               tokenAutentication = newToken;
               dao.deleteTokenLocal();
-              dao.insertTokenLocal(newToken, 3600000, DateTime.now().toString());
+              dao.insertTokenLocal(newToken, username, password, 3600000, DateTime.now().toString());
             });
-            // String refreshToken = tokenLocal[1];
-            // await _regenerateToken(context, refreshToken).then((newToken){
-            //   String codReturn = newToken[0];
-            //   if(codReturn == '200'){
-            //     debugPrint('RENOVOU TOKEN');
-            //     tokenAutentication = newToken[1];
-            //     dao.deleteTokenLocal();
-            //     dao.insertTokenLocal(newToken[1], newToken[2], newToken[3], DateTime.now().toString());
-            //   }
-            //   else{
-            //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnboardingPage()));
-            //     debugPrint('ERRO AO RENOVAR TOKEN: ' + codReturn);
-            //   }
-            // });
           }
         });
       }
@@ -73,9 +62,13 @@ class ValidationToken{
         debugPrint('NENHUM TOKEN LOCAL SALVO');
         loginWebClient.getToken(username, password).then((newToken){
           tokenAutentication = newToken;
-          dao.insertTokenLocal(newToken, 3600000, DateTime.now().toString());
+          dao.insertTokenLocal(newToken, username, password, 3600000, DateTime.now().toString());
+
+          userWebClient.getUserByUsername(username, newToken).then((user) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
+                CategoryScreen(username, password, user.idUser, user)));
+          });
         });
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
       }
     });
     return tokenAutentication;

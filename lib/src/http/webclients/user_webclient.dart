@@ -12,7 +12,7 @@ class UserWebClient {
     final Response response = await client.get(Uri.parse('$baseAPIUrl/users/username/$username'),
         headers: {"Accept": "application/json; charset=UTF-8", "Authorization": "Bearer $token"});
 
-    debugPrint("BODY AQUI >> " + response.body);
+    debugPrint("BODY >> ${response.body}");
 
     final Map<String, dynamic> json = jsonDecode(response.body);
     return User.fromJson(json);

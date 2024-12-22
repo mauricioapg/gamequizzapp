@@ -54,7 +54,7 @@ class TextWithActionWidgetState extends State<TextWithActionWidget>{
           textInputAction: TextInputAction.next,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           obscureText: widget.typeValidate == "password" ? true : false,
-          inputFormatters: widget.typeValidate == 'cpf' ? [maskCpf] : [],
+          // inputFormatters: widget.typeValidate == 'cpf' ? [maskCpf] : [],
           controller: widget.controllerField..text,
           decoration: InputDecoration(
               hintText: widget.hintTextField,
@@ -95,7 +95,7 @@ class TextWithActionWidgetState extends State<TextWithActionWidget>{
               //   child: widget.iconButton,
               // )
           ),
-          keyboardType: widget.typeValidate == 'cpf' ? TextInputType.number : TextInputType.none,
+          keyboardType: widget.typeValidate == 'cpf' ? TextInputType.number : TextInputType.text,
           validator: (value) {
             if (value == null || value.isEmpty) {
               return 'Preencha este campo';

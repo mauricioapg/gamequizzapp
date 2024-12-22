@@ -9,6 +9,7 @@ import 'package:gamequizzapp/src/models/user.dart';
 import 'package:gamequizzapp/src/screens/category_screen.dart';
 import 'package:gamequizzapp/src/screens/question_screen.dart';
 import 'package:gamequizzapp/src/service/validation_token.dart';
+import 'package:gamequizzapp/src/widgets/progress_circular_widget.dart';
 
 class AnswerScreen extends StatefulWidget {
 
@@ -40,33 +41,20 @@ class AnswerScreenState extends State<AnswerScreen> {
 
   final QuestionWebClient questionWebClient = QuestionWebClient();
   final UserWebClient userWebClient = UserWebClient();
-  List<Question> allQuestionsList = [];
+  bool waiting = false;
 
   @override
   void initState() {
     super.initState();
-
-    _getAllQuestions();
-    // startTimer();
   }
 
   startTimer() async {
     var duration = const Duration(seconds: 3);
-    return Timer(duration, route);
+    return Timer(duration, _goToNextScreen);
   }
 
-  route() {
-    _getAllQuestions();
-    if(allQuestionsList.isNotEmpty){
-      openQuestionScreen(context, widget.category, widget.pathImage, allQuestionsList, widget.username, widget.password, widget.idUser, widget.userLogged);
-    }
-    else{
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-          CategoryScreen(allQuestionsList, widget.username, widget.password, widget.idUser, widget.userLogged)));
-    }
-  }
-
-  Future<List<Question>> _getAllQuestions() async {
+  void _goToNextScreen() async {
+    List<Question> allQuestionsList = [];
     try {
       ValidationToken.getToken(context, widget.username, widget.password).then((token) async {
         if(token != null){
@@ -82,16 +70,18 @@ class AnswerScreenState extends State<AnswerScreen> {
                 });
               }
             }
+            if(allQuestionsList.isNotEmpty){
+              allQuestionsList.shuffle();
+              openQuestionScreen(context, widget.category, widget.pathImage, allQuestionsList, widget.username, widget.password, widget.idUser, widget.userLogged);
+            }
+            else{
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
+                  CategoryScreen(widget.username, widget.password, widget.idUser, widget.userLogged)));
+            }
           });
         }
       });
-    } on Exception catch(e) {
-      debugPrint("Exception encontrada >> " + e.toString());
-    }
-
-    allQuestionsList.shuffle();
-
-    return allQuestionsList;
+    } on Exception {}
   }
 
   @override
@@ -114,10 +104,13 @@ class AnswerScreenState extends State<AnswerScreen> {
                       CustomLayout.columnSpacer(constraints.maxHeight * 0.04),
                       SizedBox(
                         width: constraints.maxWidth * 0.9,
-                        height: constraints.maxHeight * 0.065,
+                        height: constraints.maxHeight * 0.085,
                         child: ElevatedButton(
                           onPressed: (){
-                            route();
+                            setState(() {
+                              waiting = !waiting;
+                            });
+                            _goToNextScreen();
                           },
                           style: ButtonStyle(
                             shape: MaterialStateProperty.all(
@@ -127,17 +120,22 @@ class AnswerScreenState extends State<AnswerScreen> {
                             ),
                             backgroundColor: MaterialStateProperty.all(Colors.white),
                           ),
-                          child: Text("Próxima pergunta", style: TextStyle(color: widget.backGroundColor, fontSize: 18)),
+                          child: waiting ? ProgressCircularWidget(
+                            mensagem: '',
+                            cor: widget.backGroundColor,
+                            width: 16,
+                            height: 16,
+                          ): Text("Próxima pergunta", style: TextStyle(color: widget.backGroundColor, fontSize: 18)),
                         ),
                       ),
                       CustomLayout.columnSpacer(constraints.maxHeight * 0.02),
                       SizedBox(
                         width: constraints.maxWidth * 0.9,
-                        height: constraints.maxHeight * 0.065,
+                        height: constraints.maxHeight * 0.085,
                         child: ElevatedButton(
                           onPressed: (){
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-                                CategoryScreen(allQuestionsList, widget.username, widget.password, widget.userLogged!.idUser, widget.userLogged)));
+                                CategoryScreen(widget.username, widget.password, widget.userLogged!.idUser, widget.userLogged)));
                           },
                           style: ButtonStyle(
                             shape: MaterialStateProperty.all(

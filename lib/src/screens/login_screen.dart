@@ -29,6 +29,7 @@ class LoginScreenState extends State<LoginScreen> {
   final TextEditingController _controllerPasswordField = TextEditingController();
   User? userLogged;
   List<Question> allQuestionsList = [];
+  bool waiting = false;
 
   @override
   void initState() {
@@ -37,6 +38,24 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<User?> _login(String username, String password) async {
     try {
+      if(username == "" || password == ""){
+        showDialog(
+          context: context,
+          builder: (contextDialog) {
+            return DialogMessageWidget(
+                image: 'assets/images/error.png',
+                textButton: 'OK',
+                title: 'Erro!',
+                content: 'Usuário e senha devem ser preenchidos',
+                contentHeight: 80,
+                functionSecond: () => Navigator.pop(context)
+            );
+          },
+        );
+        setState(() {
+          waiting = !waiting;
+        });
+      }
       ValidationToken.getToken(context, username, password).then((token) async {
         if(token != null){
           await userWebClient.getUserByUsername(username, token).then((user) {
@@ -46,7 +65,8 @@ class LoginScreenState extends State<LoginScreen> {
           });
 
           if(userLogged != null){
-            _getAllQuestions(username, password);
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
+                CategoryScreen(username, password, userLogged!.idUser, userLogged!)));
           }
         }
         else{
@@ -63,33 +83,13 @@ class LoginScreenState extends State<LoginScreen> {
               );
             },
           );
-        }
-      });
-    } on Exception {}
-    return userLogged;
-  }
-
-  Future<List<Question>> _getAllQuestions(String username, String password) async {
-    try {
-      ValidationToken.getToken(context, username, password).then((token) async {
-        if(token != null){
-          await questionWebClient.getAllQuestions(token).then((questions) {
-            for(int i=0; i < questions.length; i++){
-              setState(() {
-                allQuestionsList.add(questions[i]);
-              });
-            }
-
-            if(allQuestionsList.isNotEmpty){
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-                  CategoryScreen(allQuestionsList, username, password, userLogged!.idUser, userLogged!)));
-            }
-
+          setState(() {
+            waiting = !waiting;
           });
         }
       });
     } on Exception {}
-    return allQuestionsList;
+    return userLogged;
   }
 
   Widget build(BuildContext context) {
@@ -138,9 +138,12 @@ class LoginScreenState extends State<LoginScreen> {
                   CustomLayout.columnSpacer(constraints.maxHeight * 0.04),
                   SizedBox(
                     width: constraints.maxWidth * 0.9,
-                    height: constraints.maxHeight * 0.065,
+                    height: constraints.maxHeight * 0.085,
                     child: ElevatedButton(
                       onPressed: (){
+                        setState(() {
+                          waiting = !waiting;
+                        });
                         _login(_controllerUsernameField.text, _controllerPasswordField.text);
                       },
                       style: ButtonStyle(
@@ -151,13 +154,19 @@ class LoginScreenState extends State<LoginScreen> {
                         ),
                         backgroundColor: MaterialStateProperty.all(Colors.black),
                       ),
-                      child: const Text("Entrar", style: TextStyle(color: Colors.white, fontSize: 18)),
+                      child: waiting ? const ProgressCircularWidget(
+                          mensagem: '',
+                          cor: Colors.white,
+                          width: 16,
+                          height: 16,
+                      ) :
+                      const Text("Entrar", style: TextStyle(color: Colors.white, fontSize: 18)),
                     ),
                   ),
                   CustomLayout.columnSpacer(constraints.maxHeight * 0.02),
                   SizedBox(
                     width: constraints.maxWidth * 0.9,
-                    height: constraints.maxHeight * 0.065,
+                    height: constraints.maxHeight * 0.085,
                     child: ElevatedButton(
                       onPressed: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context) =>

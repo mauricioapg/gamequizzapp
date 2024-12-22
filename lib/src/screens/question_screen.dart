@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:gamequizzapp/src/constants/custom_layout.dart';
-import 'package:gamequizzapp/src/http/webclients/question_webclient.dart';
 import 'package:gamequizzapp/src/http/webclients/user_webclient.dart';
 import 'package:gamequizzapp/src/models/category.dart';
 import 'package:gamequizzapp/src/models/question.dart';
@@ -37,7 +36,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
   final UserWebClient userWebClient = UserWebClient();
   String selectedAlternative = '';
   int selectedItem = 4;
-  int _counter = 200;
+  int _counter = 10;
 
   @override
   void initState() {
@@ -52,7 +51,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
           _counter--;
         }
         else{
-          openCorrectAnswerScreen(
+          openAnswerScreen(
               context,
               "assets/images/time_finished.png",
               "Tempo Esgotado",
@@ -195,7 +194,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
         child: ElevatedButton(
           onPressed: () {
             if(answerQuestion(widget.listQuestion[0].answer, selectedAlternative, widget.listQuestion[0].idQuestion)){
-              openCorrectAnswerScreen(
+              openAnswerScreen(
                   context,
                   "assets/images/correct.png",
                   "Resposta Correta",
@@ -208,7 +207,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
               );
             }
             else{
-              openCorrectAnswerScreen(
+              openAnswerScreen(
                   context,
                   "assets/images/wrong.png",
                   "Resposta Errada",
@@ -240,7 +239,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
     );
   }
 
-  void openCorrectAnswerScreen(
+  void openAnswerScreen(
       BuildContext context,
       String pathImage,
       String text,

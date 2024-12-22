@@ -151,7 +151,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                   CustomLayout.columnSpacer(constraints.maxHeight * 0.04),
                   SizedBox(
                     width: constraints.maxWidth * 0.9,
-                    height: constraints.maxHeight * 0.065,
+                    height: constraints.maxHeight * 0.085,
                     child: ElevatedButton(
                       onPressed: (){
                         _register(

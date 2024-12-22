@@ -12,13 +12,12 @@ import 'package:gamequizzapp/src/widgets/progress_circular_widget.dart';
 
 class CategoryScreen extends StatefulWidget {
 
-  final List<Question> allQuestionsList;
   final String username;
   final String password;
   final String idUser;
   final User userLogged;
 
-  const CategoryScreen(this.allQuestionsList, this.username, this.password, this.idUser, this.userLogged, {Key? key}) : super(key: key);
+  const CategoryScreen(this.username, this.password, this.idUser, this.userLogged, {Key? key}) : super(key: key);
 
 
   @override
@@ -31,22 +30,41 @@ class CategoryScreenState extends State<CategoryScreen> {
 
   final List<Category> _categoryList = [];
   List<Question> questionsByCategory = [];
+  List<Question> allQuestionsList = [];
   final CategoryWebClient categoryWebClient = CategoryWebClient();
   final QuestionWebClient questionWebClient = QuestionWebClient();
   final UserWebClient userWebClient = UserWebClient();
-  late Future _future;
+  late Future _futureCategoryList;
 
   @override
   void initState() {
     super.initState();
-    _future = _getCategoryList();
+    _futureCategoryList = _getCategoryList();
+    _getAllQuestions(widget.username, widget.password);
+  }
+
+  Future<List<Question>> _getAllQuestions(String username, String password) async {
+    try {
+      ValidationToken.getToken(context, username, password).then((token) async {
+        if(token != null){
+          await questionWebClient.getAllQuestions(token).then((questions) {
+            for(int i=0; i < questions.length; i++){
+              setState(() {
+                allQuestionsList.add(questions[i]);
+              });
+            }
+
+          });
+        }
+      });
+    } on Exception {}
+    return allQuestionsList;
   }
 
   Future<List<Question>> _getQuestionsByCategory(String desc) async{
-    debugPrint("allQuestionsList recebido >> " + widget.allQuestionsList.toString());
     try{
       await ValidationToken.getToken(context, widget.username, widget.password).then((token) async{
-        for (var question in widget.allQuestionsList){
+        for (var question in allQuestionsList){
           if(question.category == desc){
             await userWebClient.getUserByUsername(widget.username, token!).then((user) {
               if(!user.questionsAnswered.contains(question.idQuestion)){
@@ -63,37 +81,8 @@ class CategoryScreenState extends State<CategoryScreen> {
 
     questionsByCategory.shuffle(); //Embaralha lista
 
-    debugPrint("questionsByCategory >> " + questionsByCategory.toString());
-
     return questionsByCategory;
   }
-
-  // List<Question> _getQuestionsByCategory(String desc){
-  //   debugPrint("desc category >> " + desc);
-  //   try{
-  //     ValidationToken.getToken(context, widget.username, widget.password).then((token) async{
-  //       for (var question in widget.allQuestionsList){
-  //         debugPrint("cat >> " + question.category);
-  //         if(question.category == desc){
-  //           await userWebClient.getUserByUsername(widget.username, token!).then((user) {
-  //             if(!user.questionsAnswered.contains(question.idQuestion)){
-  //               setState(() {
-  //                 questionsByCategory.add(question);
-  //               });
-  //             }
-  //           });
-  //         }
-  //       }
-  //     });
-  //   }
-  //   on Exception {}
-  //
-  //   questionsByCategory.shuffle(); //Embaralha lista
-  //
-  //   debugPrint("questionsByCategory >> " + questionsByCategory.toString());
-  //
-  //   return questionsByCategory;
-  // }
 
   Future<List<Category>> _getCategoryList() async {
     try {
@@ -179,7 +168,7 @@ class CategoryScreenState extends State<CategoryScreen> {
             child: Column(
               children: [
                 FutureBuilder(
-                  future: _future,
+                  future: _futureCategoryList,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       if (snapshot.hasError) {
@@ -213,7 +202,6 @@ class CategoryScreenState extends State<CategoryScreen> {
                                   action: () {
                                     _getQuestionsByCategory(_categoryList[index].desc).then((list){
                                       if(list.isNotEmpty){
-                                        debugPrint("chamando tela da pergunta");
                                         openQuestionScreen(
                                             context,
                                             _categoryList[index],
@@ -230,23 +218,6 @@ class CategoryScreenState extends State<CategoryScreen> {
                                         debugPrint('IS EMPTY: ');
                                       }
                                     });
-                                    // if(){
-                                    //   debugPrint("chamando tela da pergunta");
-                                    //   openQuestionScreen(
-                                    //       context,
-                                    //       _categoryList[index],
-                                    //       chooseLocationImage(_categoryList[index].desc),
-                                    //       _categoryList[index].desc,
-                                    //       _getQuestionsByCategory(_categoryList[index].desc),
-                                    //       widget.username,
-                                    //       widget.password,
-                                    //       widget.idUser,
-                                    //       widget.userLogged
-                                    //   );
-                                    // }
-                                    // else{
-                                    //   debugPrint('IS EMPTY: ');
-                                    // }
                                   },
                                 );
                               },
@@ -285,7 +256,7 @@ class CategoryScreenState extends State<CategoryScreen> {
       String idUser,
       User userLogged
       ) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) =>
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
         QuestionScreen(category, pathImage, listQuestion, username, password, idUser, userLogged)));
   }
 
