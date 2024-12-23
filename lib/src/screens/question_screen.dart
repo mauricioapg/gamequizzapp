@@ -11,6 +11,7 @@ import 'package:gamequizzapp/src/service/validation_token.dart';
 import 'package:gamequizzapp/src/widgets/dialog_message_widget.dart';
 import 'package:gamequizzapp/src/widgets/list_tile_widget.dart';
 import 'package:gamequizzapp/src/widgets/progress_circular_widget.dart';
+import 'dart:convert';
 
 class QuestionScreen extends StatefulWidget {
 
@@ -98,7 +99,8 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                 child: SizedBox(
                     height: 20,
                     width: 20,
-                    child: Image.asset(widget.pathImage)
+                    child: Image.memory(base64Decode(widget.pathImage))
+                    // child: Image.asset(widget.pathImage)
                 )
               ),
               Text(widget.category.desc, style: const TextStyle(color: Colors.white)),

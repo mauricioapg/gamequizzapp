@@ -101,46 +101,6 @@ class CategoryScreenState extends State<CategoryScreen> {
     return _categoryList;
   }
 
-  String chooseLocationImage(String descCategory){
-    String pathImage = '';
-    switch(descCategory){
-      case 'Geografia':
-        pathImage = 'assets/images/geografia.png';
-        break;
-      case 'História':
-        pathImage = 'assets/images/historia.png';
-        break;
-      case 'Matemática':
-        pathImage = 'assets/images/matematica.png';
-        break;
-      case 'Conhecimentos Gerais':
-        pathImage = 'assets/images/conhecimentos_gerais.png';
-        break;
-      case 'Literatura':
-        pathImage = 'assets/images/literatura.png';
-        break;
-      case 'Música':
-        pathImage = 'assets/images/musica.png';
-        break;
-      case 'Filmes e Séries':
-        pathImage = 'assets/images/filmes_series.png';
-        break;
-      case 'Biologia':
-        pathImage = 'assets/images/biologia.png';
-        break;
-      case 'Política':
-        pathImage = 'assets/images/politica.png';
-        break;
-      case 'Quadrinhos':
-        pathImage = 'assets/images/quadrinhos.png';
-        break;
-      case 'Esportes':
-        pathImage = 'assets/images/esportes.png';
-        break;
-    }
-    return pathImage;
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -196,7 +156,7 @@ class CategoryScreenState extends State<CategoryScreen> {
                                 return ListTileWidget(
                                   titleColor: Colors.black,
                                   cardColor: Colors.black12,
-                                  locationImage: chooseLocationImage(_categoryList[index].desc),
+                                  locationImage: _categoryList[index].image,
                                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                                   title: _categoryList[index].desc,
                                   action: () {
@@ -205,7 +165,7 @@ class CategoryScreenState extends State<CategoryScreen> {
                                         openQuestionScreen(
                                             context,
                                             _categoryList[index],
-                                            chooseLocationImage(_categoryList[index].desc),
+                                            _categoryList[index].image,
                                             _categoryList[index].desc,
                                             list,
                                             widget.username,

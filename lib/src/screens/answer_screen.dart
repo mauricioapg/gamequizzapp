@@ -72,7 +72,7 @@ class AnswerScreenState extends State<AnswerScreen> {
             }
             if(allQuestionsList.isNotEmpty){
               allQuestionsList.shuffle();
-              openQuestionScreen(context, widget.category, widget.pathImage, allQuestionsList, widget.username, widget.password, widget.idUser, widget.userLogged);
+              openQuestionScreen(context, widget.category, widget.category.image, allQuestionsList, widget.username, widget.password, widget.idUser, widget.userLogged);
             }
             else{
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
