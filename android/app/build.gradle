@@ -5,6 +5,13 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -44,26 +51,43 @@ android {
         versionName = flutterVersionName
     }
 
+//    signingConfigs {
+//        release {
+//            // Caminho para o arquivo .jks (keystore)
+//            storeFile file("quizzgame.jks") // substitua pelo caminho correto
+//            storePassword "Mapg0592" // a senha do seu keystore
+//            keyAlias "quizzgame" // o alias da chave
+//            keyPassword "Mapg0592" // a senha da chave
+//        }
+//    }
+
     signingConfigs {
         release {
-            // Caminho para o arquivo .jks (keystore)
-            storeFile file("quizzgame.jks") // substitua pelo caminho correto
-            storePassword "Mapg0592" // a senha do seu keystore
-            keyAlias "quizzgame" // o alias da chave
-            keyPassword "Mapg0592" // a senha da chave
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true // Ativar Proguard para redução de tamanho
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-//            signingConfig = signingConfigs.debug
-            // Configurações de release
-            signingConfig signingConfigs.release
-//            shrinkResources false
-        }
-    }
+//    buildTypes {
+//        release {
+//            // TODO: Add your own signing config for the release build.
+//            // Signing with the debug keys for now, so `flutter run --release` works.
+////            signingConfig = signingConfigs.debug
+//            // Configurações de release
+//            signingConfig signingConfigs.release
+////            shrinkResources false
+//        }
+//    }
 }
 
 flutter {
