@@ -21,6 +21,7 @@ class AnswerScreen extends StatefulWidget {
   final String password;
   final String idUser;
   final User userLogged;
+  final String idQuestionAnswered;
 
   const AnswerScreen(
       this.pathImage,
@@ -31,6 +32,7 @@ class AnswerScreen extends StatefulWidget {
       this.password,
       this.idUser,
       this.userLogged,
+      this.idQuestionAnswered,
       {super.key});
 
   @override
@@ -41,6 +43,7 @@ class AnswerScreenState extends State<AnswerScreen> {
 
   final QuestionWebClient questionWebClient = QuestionWebClient();
   final UserWebClient userWebClient = UserWebClient();
+  Question? questionFound;
   bool waiting = false;
 
   @override
@@ -53,34 +56,45 @@ class AnswerScreenState extends State<AnswerScreen> {
     return Timer(duration, _goToNextScreen);
   }
 
-  void _goToNextScreen() async {
-    List<Question> allQuestionsList = [];
+  Future<Question?> _getOneRandomQuestion(String username, String password, String idCategory, String idQuestionIgnore) async {
     try {
-      ValidationToken.getToken(context, widget.username, widget.password).then((token) async {
-        if(token != null){
-          await questionWebClient.getAllQuestions(token).then((questions) async {
-            for(int i=0; i < questions.length; i++){
-              if(questions[i].category == widget.category.desc){
-                await userWebClient.getUserByUsername(widget.username, token).then((user) {
-                  if(!user.questionsAnswered.contains(questions[i].idQuestion)){
-                    setState(() {
-                      allQuestionsList.add(questions[i]);
-                    });
-                  }
-                });
-              }
-            }
-            if(allQuestionsList.isNotEmpty){
-              allQuestionsList.shuffle();
-              openQuestionScreen(context, widget.category, widget.category.image, allQuestionsList, widget.username, widget.password, widget.idUser, widget.userLogged);
-            }
-            else{
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-                  CategoryScreen(widget.username, widget.password, widget.idUser, widget.userLogged)));
-            }
-          });
-        }
-      });
+      final token = await ValidationToken.getToken(context, username, password);
+      final question = await questionWebClient.getOneQuestion(token, idCategory, widget.idUser, idQuestionIgnore);
+      return question;
+    } catch (e) {
+      debugPrint('Erro ao obter question: $e');
+      return null;
+    }
+  }
+
+  void _goToNextScreen() async {
+    try {
+          // Obter a questão de forma assíncrona
+          questionFound = await _getOneRandomQuestion(
+              widget.username,
+              widget.password,
+              widget.category.idCategory,
+              widget.idQuestionAnswered
+          );
+
+          if(questionFound != null){
+
+            // Verificar se a questão foi encontrada antes de continuar
+            openQuestionScreen(
+                  context,
+                  widget.category,
+                  widget.category.image,
+                  questionFound!,
+                  widget.username,
+                  widget.password,
+                  widget.idUser,
+                  widget.userLogged
+              );
+          }
+          else{
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
+                CategoryScreen(widget.username, widget.password, widget.idUser, widget.userLogged)));
+          }
     } on Exception {}
   }
 
@@ -160,14 +174,14 @@ class AnswerScreenState extends State<AnswerScreen> {
       BuildContext context,
       Category category,
       String pathImage,
-      List<Question> listQuestion,
+      Question chooseQuestion,
       String username,
       String password,
       String idUser,
       User userLogged,
       ) {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-        QuestionScreen(category, pathImage, listQuestion, username, password, idUser, userLogged))
+        QuestionScreen(category, pathImage, chooseQuestion, username, password, idUser, userLogged))
     );
   }
 

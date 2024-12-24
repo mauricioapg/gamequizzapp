@@ -17,13 +17,13 @@ class QuestionScreen extends StatefulWidget {
 
   final Category category;
   final String pathImage;
-  final List<Question> listQuestion;
+  final Question chooseQuestion;
   final String username;
   final String password;
   final String idUser;
   final User userLogged;
 
-  const QuestionScreen(this.category, this.pathImage, this.listQuestion, this.username, this.password, this.idUser, this.userLogged, {super.key});
+  const QuestionScreen(this.category, this.pathImage, this.chooseQuestion, this.username, this.password, this.idUser, this.userLogged, {super.key});
 
 
   @override
@@ -61,7 +61,8 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
               widget.username,
               widget.password,
               widget.idUser,
-              widget.userLogged
+              widget.userLogged,
+              widget.chooseQuestion.idQuestion
           );
         }
       });
@@ -123,7 +124,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const Text('Nível: ', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                        Text(widget.listQuestion[0].level, style: const TextStyle(fontSize: 16, color: Colors.white))
+                        Text(widget.chooseQuestion.level, style: const TextStyle(fontSize: 16, color: Colors.white))
                       ],
                     )
                 ),
@@ -150,7 +151,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                         child: Center(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 16, right: 16),
-                              child: Text(widget.listQuestion[0].title, style: const TextStyle(fontSize: 20)),
+                              child: Text(widget.chooseQuestion.title, style: const TextStyle(fontSize: 20)),
                             )
                         )
                     ),
@@ -158,14 +159,14 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                     ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
-                      itemCount: widget.listQuestion[0].alternatives.length,
+                      itemCount: widget.chooseQuestion.alternatives.length,
                       itemBuilder: (context, index) {
                         return ListTileWidget(
                           titleColor: Colors.black,
                           cardColor: index == selectedItem ? Colors.blue : Colors.black12,
-                          title: widget.listQuestion[0].alternatives[index],
+                          title: widget.chooseQuestion.alternatives[index],
                           action: () {
-                            selectedAlternative = widget.listQuestion[0].alternatives[index];
+                            selectedAlternative = widget.chooseQuestion.alternatives[index];
                             setState(() {
                               selectedItem = index;
                             });
@@ -195,7 +196,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
         padding: const EdgeInsets.only(bottom: 10, left: 8, right: 8),
         child: ElevatedButton(
           onPressed: () {
-            if(answerQuestion(widget.listQuestion[0].answer, selectedAlternative, widget.listQuestion[0].idQuestion)){
+            if(answerQuestion(widget.chooseQuestion.answer, selectedAlternative, widget.chooseQuestion.idQuestion)){
               openAnswerScreen(
                   context,
                   "assets/images/correct.png",
@@ -206,6 +207,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                   widget.password,
                   widget.idUser,
                   widget.userLogged,
+                  widget.chooseQuestion.idQuestion
               );
             }
             else{
@@ -219,6 +221,7 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
                   widget.password,
                   widget.idUser,
                   widget.userLogged,
+                  widget.chooseQuestion.idQuestion
               );
             }
           },
@@ -251,9 +254,10 @@ class QuestionScreenState extends State<QuestionScreen> with SingleTickerProvide
       String password,
       String idUser,
       User userLogged,
+      String idQuestionAnswered
       ) {
     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-        AnswerScreen(pathImage, text, backGroundColor, category, username, password, idUser, userLogged))
+        AnswerScreen(pathImage, text, backGroundColor, category, username, password, idUser, userLogged, idQuestionAnswered))
     );
   }
 
