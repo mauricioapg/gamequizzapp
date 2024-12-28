@@ -62,12 +62,16 @@ class LoginScreenState extends State<LoginScreen> {
             setState(() {
               userLogged = user;
             });
+            if(userLogged != null){
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
+                  CategoryScreen(username, password, userLogged!.idUser, userLogged!)));
+            }
           });
 
-          if(userLogged != null){
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
-                CategoryScreen(username, password, userLogged!.idUser, userLogged!)));
-          }
+          // if(userLogged != null){
+          //   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
+          //       CategoryScreen(username, password, userLogged!.idUser, userLogged!)));
+          // }
         }
         else{
           showDialog(
